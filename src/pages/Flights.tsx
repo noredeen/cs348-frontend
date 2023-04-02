@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import AsyncSelect from "react-select/async"
 import axios from "axios";
 
-
 type SelectOptionType = { label: string, value: string }
 type GetAirportCodeResponse = {
   data: string[];
@@ -12,21 +11,21 @@ type GetAirportCodeResponse = {
 type FlightType = {
   id: number
   airline_name: string,
-  flight_num: string,
-  datetime: string,
+  flight_number: string,
+  departure_time: string,
   origin_ap_code: string,
   dest_ap_code: string,
   from_city: string,
   to_city: string,
   airplane_model: string,
-  pct_occupued: number,
+  pct_occupied: number,
   status: string
 };
 
 export default function Flights() {
     const [options, setOptions] = useState<{label:string, value:string}[]>([])
-    const [origin, setOrigin] = useState<string>("")
-    const [dest, setDest] = useState<string>("")
+    const [origin, setOrigin] = useState("")
+    const [dest, setDest] = useState("")
     const [flights, setFlights] = useState<FlightType[]>([])
 
     const getFlightsFrom = (opt?: SelectOptionType | null) => {
@@ -53,7 +52,17 @@ export default function Flights() {
     };
 
     useEffect(() => {
-      console.log("query flights")
+      axios.get<FlightType[]>(
+        'https://localhost:8000/flights',
+        {params: {
+          page: 1,
+          results_per_page: 15,
+          origin: String(origin),
+          dest: String(dest),
+        }}
+      ).then(response => {
+        setFlights(response.data)
+      })
     }, [origin, dest])
 
     return (
@@ -91,21 +100,21 @@ export default function Flights() {
               return (
               <div key={f.id} className="max-w-full rounded overflow-hidden shadow-lg bg-white">
                 <div className="px-6 py-4">
-                  <div className="flex font-bold text-xl">United Airlines #1938:
-                  <a href="/" className="ml-5 text-neutral-600">JFK</a>
+                  <div className="flex font-bold text-xl">{f.airline_name} #{f.flight_number}:
+                  <a href="/" className="ml-5 text-neutral-600">{f.origin_ap_code}</a>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-5 h-5 mx-2 mt-1">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
-                  <a href="/" className="text-neutral-600">SFO</a>
+                  <a href="/" className="text-neutral-600">{f.dest_ap_code}</a>
                   </div>
                   <p className="text-gray-700 text-xl mb-2">
-                    March 13th 2022
+                    {f.departure_time}
                   </p>
                   <p className="text-gray-700 text-base">
-                    New York City, NY -- San Francisco, CA
+                    {f.from_city} -- {f.to_city}
                   </p>
                   <p className="text-gray-700 text-base">
-                    Boeing 787 Dreamliner
+                    {f.airplane_model}
                   </p>
                 </div>
                 <div className="w-auto mx-5 rounded bg-slate-100">

@@ -22,10 +22,6 @@ export default function App() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log("user", user);
-  }, [user]);
-
   return (
     <AuthContext.Provider value={{ user, setUser }}>
       <div>

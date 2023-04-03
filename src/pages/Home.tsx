@@ -1,7 +1,5 @@
-import { Layout } from "../components/Layout";
-import { CurrentUserType } from "../utils/auth";
+import { Layout } from "./components/Layout";
 import React, { useContext } from "react";
-import Login from "./Login";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "./AuthContext";
 

@@ -2,7 +2,7 @@ import React, { Fragment, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import AuthContext from "../pages/AuthContext";
+import AuthContext from "../AuthContext";
 
 const navigation = [
   { name: "Dashboard", href: "/", current: true },

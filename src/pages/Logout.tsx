@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
-import { CurrentUserType, logoutUser } from "../utils/auth";
 import React, { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../utils/auth";
 import AuthContext from "./AuthContext";
 
 interface Props {}

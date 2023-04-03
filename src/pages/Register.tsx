@@ -1,8 +1,7 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { CurrentUserType, TOAST_OPTIONS, registerUser } from "../utils/auth";
+import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import React from "react";
+import { useNavigate } from "react-router-dom";
+import { TOAST_OPTIONS, registerUser } from "../utils/auth";
 import AuthContext from "./AuthContext";
 
 interface Props {}

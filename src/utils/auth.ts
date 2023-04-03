@@ -101,11 +101,11 @@ export const logoutUser = async () => {
     if (response.status === 200) {
       return response.data;
     } else {
-      toast(String(response.data), TOAST_OPTIONS);
+      console.error(response.data);
       return null;
     }
   } catch (e: any) {
-    toast(e.message, TOAST_OPTIONS);
+    console.error(e.message);
     return null;
   }
 };

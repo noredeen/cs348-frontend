@@ -1,7 +1,6 @@
-import { useContext, useEffect, useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
-import { CurrentUserType, loginUser } from "../utils/auth";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../utils/auth";
 import AuthContext from "./AuthContext";
 
 interface Props {}

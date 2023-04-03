@@ -43,7 +43,7 @@ export default function Flights() {
     ) => {
       setTimeout(() => {
         axios.get<GetAirportCodeResponse>(
-          'https://localhost:8000/airports',
+          'http://localhost:8000/airports',
           {params: {code: inputValue}}
         ).then(response => {
           return callback(response.data.data.map(r => ({label: r, value: r})))
@@ -53,7 +53,7 @@ export default function Flights() {
 
     useEffect(() => {
       axios.get<FlightType[]>(
-        'https://localhost:8000/flights',
+        'http://localhost:8000/flights',
         {params: {
           page: 1,
           results_per_page: 15,

@@ -14,7 +14,7 @@ const Permissions: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/users");
+      const response = await axios.get("https://localhost:8000/users");
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -23,7 +23,7 @@ const Permissions: React.FC = () => {
 
   const updateRole = async (userId: string, newRole: string) => {
     try {
-      await axios.post("http://localhost:8000/updaterole", {
+      await axios.post("https://localhost:8000/updaterole", {
         user_id: userId,
         role: newRole,
       });

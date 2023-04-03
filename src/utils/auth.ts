@@ -11,7 +11,7 @@ export type CurrentUserType = {
 export const loginUser = async (username: string, password: string) => {
   try {
     const response = await axios.post(
-      "http://localhost:8000/login",
+      "https://localhost:8000/login",
       {
         username,
         password,
@@ -42,7 +42,7 @@ export const registerUser = async (
 ) => {
   try {
     const response = await axios.post(
-      "http://localhost:8000/register",
+      "https://localhost:8000/register",
       {
         username,
         password,
@@ -70,7 +70,7 @@ export const registerUser = async (
 export const currentUser = async () => {
   try {
     const response = await axios.get<CurrentUserType>(
-      "http://localhost:8000/currentuser",
+      "https://localhost:8000/currentuser",
       {
         withCredentials: true,
       }
@@ -91,7 +91,7 @@ export const currentUser = async () => {
 export const logoutUser = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:8000/logout",
+      "https://localhost:8000/logout",
       {},
       {
         withCredentials: true,

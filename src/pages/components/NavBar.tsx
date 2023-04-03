@@ -11,7 +11,7 @@ const navigation = [
   { name: "Passengers", href: "/passengers", current: false },
 ];
 const userNavigation = [
-  { name: "Settings", href: "#" },
+  { name: "Permissions", href: "/permissions" },
   { name: "Sign out", href: "/logout" },
 ];
 
@@ -20,7 +20,7 @@ function classNames(...classes: string[]) {
 }
 
 export default function NavBar() {
-  const { user, setUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   return (
     <div className="min-h-full">

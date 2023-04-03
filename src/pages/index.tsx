@@ -8,6 +8,7 @@ import Home from "./Home";
 import Login from "./Login";
 import Logout from "./Logout";
 import Register from "./Register";
+import Permissions from "./Permissions";
 
 export default function App() {
   const [user, setUser] = useState<CurrentUserType | null>(null);
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/permissions" element={<Permissions />} />
         </Routes>
       </Router>
     </AuthContext.Provider>

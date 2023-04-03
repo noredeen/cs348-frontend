@@ -4,13 +4,11 @@ import AsyncSelect from "react-select/async"
 import axios from "axios";
 import AirportSelector from "./components/AirportSelector";
 import CreateFlightModal from "./components/CreateFlightModal";
+import { ActionMeta, SingleValue } from "react-select";
+import { SelectOptionType } from "./components/AirportSelector";
+import IssueTicketModal from "./components/IssueTicketModal";
 
-type SelectOptionType = { label: string, value: string }
-type GetAirportCodeResponse = {
-  data: string[];
-};
-
-type FlightType = {
+export type FlightType = {
   id: number
   airline_name: string,
   flight_number: string,
@@ -20,7 +18,7 @@ type FlightType = {
   from_city: string,
   to_city: string,
   airplane_model: string,
-  pct_occupied: number,
+  ticket_count: number,
   status: string
 };
 
@@ -31,38 +29,25 @@ export default function Flights() {
     const [showOnlyCancelled, setShowOnlyCancelled] = useState(false)
     const [hasCancelled, setHasCancelled] = useState(false)
     const [flights, setFlights] = useState<FlightType[]>([])
-    const [modalOpen, setModalOpen] = useState(false)
+    const [createFlightModalOpen, setCreateFlightModalOpen] = useState(false)
+    const [issueTicketModalOpen, setIssueTicketModalOpen] = useState(false)
 
-    const getFlightsFrom = (opt?: SelectOptionType | null) => {
-      setOrigin(opt?.value || "")
+    const getFlightsFrom = (newValue: SingleValue<SelectOptionType>, actionMeta: ActionMeta<SelectOptionType>) => {
+      setOrigin(newValue?.value.airport_code || "")
     }
 
-    const getFlightsTo = (opt?: SelectOptionType | null) => {
-      setDest(opt?.value || "")
+    const getFlightsTo = (newValue: SingleValue<SelectOptionType>, actionMeta: ActionMeta<SelectOptionType>) => {
+      setDest(newValue?.value.airport_code || "")
     }
 
     const cancelFlight = (flight_id: number): void => {
       axios.get(
         'https://localhost:8000/cancel_flight',
-        {params: {f_id: flight_id}}
+        {params: {flight_id: flight_id}}
       ).then(response => {
         setHasCancelled(true)
       })
     }
-
-    const loadOptions = (
-      inputValue: string,
-      callback: (options: SelectOptionType[]) => void
-    ) => {
-      setTimeout(() => {
-        axios.get<GetAirportCodeResponse>(
-          'https://localhost:8000/airports',
-          {params: {code: inputValue}}
-        ).then(response => {
-          return callback(response.data.data.map(r => ({label: r, value: r})))
-        })
-      }, 1000);
-    };
 
     useEffect(() => {
       const params: {
@@ -91,7 +76,8 @@ export default function Flights() {
 
     return (
       <main>
-        <CreateFlightModal open={modalOpen} setOpen={setModalOpen} />
+        <CreateFlightModal open={createFlightModalOpen} setOpen={setCreateFlightModalOpen} />
+        <IssueTicketModal open={issueTicketModalOpen} setOpen={setIssueTicketModalOpen} />
         <div className="mx-auto max-w-3xl py-6 sm:px-6 lg:px-8">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-7 text-gray-900">Flight Lookup</h2>
@@ -100,34 +86,43 @@ export default function Flights() {
               type="button"
               className='mt-3 col-end-7 col-span-1 rounded bg-blue-800 px-6 pt-2.5 pb-2 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca]'
               onClick={() => {
-                setModalOpen(true)
+                setCreateFlightModalOpen(true)
               }}
             >
               Create Flight
             </button>
 
+            <button
+              type="button"
+              className='ml-3 mt-3 col-end-7 col-span-1 rounded bg-blue-800 px-6 pt-2.5 pb-2 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca]'
+              onClick={() => {
+                setIssueTicketModalOpen(true)
+              }}
+            >
+              Issue Ticket
+            </button>
+
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               <div className="sm:col-span-3">
-                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Origin</label>
+                <label className="block text-sm font-medium leading-6 text-gray-900">Origin</label>
                 <div className="mt-2">
-                  <AirportSelector isClearable={true} onChange={getFlightsFrom}/>
+                  <AirportSelector isOriginSearch={true} dest={dest} isClearable={true} onChange={getFlightsFrom}/>
                 </div>
               </div>
 
               <div className="sm:col-span-3">
-                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Destination</label>
+                <label className="block text-sm font-medium leading-6 text-gray-900">Destination</label>
                 <div className="mt-2">
-                  <AirportSelector isClearable={true} onChange={getFlightsTo}/>
+                  <AirportSelector isOriginSearch={false} origin={origin} isClearable={true} onChange={getFlightsTo}/>
                 </div>
               </div>
             </div>
 
               <div className="sm:col-span-3 mt-4">
-                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Only Cancelled Flights</label>
+                <label className="block text-sm font-medium leading-6 text-gray-900">Only Cancelled Flights</label>
                 <div className="inline-flex items-center">
                   <label
                     className="relative flex cursor-pointer items-center rounded-full p-3"
-                    for="checkbox-8"
                     data-ripple-dark="true"
                   >
                     <input
@@ -176,14 +171,14 @@ export default function Flights() {
                     {f.departure_time}
                   </p>
                   <p className="text-gray-700 text-base">
-                    {f.from_city} -- {f.to_city}
+                    {f.from_city} -- {f.to_city} (ID: {f.id})
                   </p>
                   <p className="text-gray-700 text-base">
                     {f.airplane_model}
                   </p>
                 </div>
                 <div className="w-auto mx-5 rounded bg-slate-100">
-                  <div className="bg-primary p-0.5 text-center text-xs font-medium leading-none text-primary-100 bg-green-500" style={{"width": "25%"}}>25%</div>
+                  Tickets Booked: {f.ticket_count}
                 </div>
                 <div className="grid grid-cols-6 gap-4 px-6 pt-4 pb-2">
                   <span className={className}>{status}</span>

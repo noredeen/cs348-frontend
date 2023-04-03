@@ -2,39 +2,31 @@ import AsyncSelect from "react-select/async"
 import axios from "axios";
 import { SingleValue, ActionMeta } from "react-select";
 
-export type RouteInfo = {
-  id?: number,
+export type AirlineInfo = {
   airline_code?: string,
   airline_name?: string,
-  airplane_code?: string,
-  airplane_model?: string
 };
-export type SelectOptionType = { label: string, value: RouteInfo }
+export type SelectOptionType = { label: string, value: string }
 
-interface RouteAirlineSelectorProps {
+interface AirlineSelectorProps {
   onChange: ((newValue: SingleValue<SelectOptionType>, actionMeta: ActionMeta<SelectOptionType>) => void) | undefined
-  origin: string
-  dest: string
-  isDisabled: boolean
 }
 
-export default function RouteAirlineSelector(props: RouteAirlineSelectorProps) {
+export default function AirlineSelector(props: AirlineSelectorProps) {
   const loadOptions = (
     inputValue: string,
     callback: (options: SelectOptionType[]) => void
   ) => {
     setTimeout(() => {
-      axios.get<RouteInfo[]>(
-        'https://localhost:8000/routes',
+      axios.get<AirlineInfo[]>(
+        'https://localhost:8000/airlines',
         {
           params: {
-            origin_ap_code: String(props.origin),
-            dest_ap_code: String(props.dest),
             airline_name: String(inputValue),
           }
         }
       ).then(response => {
-        return callback(response.data.map(r => ({label: r.airline_name, value: r})))
+        return callback(response.data.map(r => ({label: r.airline_name || "", value: r.airline_code || ""})))
       })
     }, 1000);
   };
@@ -43,7 +35,6 @@ export default function RouteAirlineSelector(props: RouteAirlineSelectorProps) {
     <AsyncSelect isClearable defaultOptions
       loadOptions={loadOptions}
       onChange={props.onChange}
-      isDisabled={props.isDisabled}
     />
   )
 }

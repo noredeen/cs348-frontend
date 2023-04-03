@@ -1,13 +1,12 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { WindowIcon } from '@heroicons/react/24/outline'
-import AirportSelector from './AirportSelector'
-import { SelectOptionType } from './AirportSelector'
-import RouteAirlineSelector from './RouteAirlineSelector'
-import { RouteInfo } from './RouteAirlineSelector'
+import AirportSelector, { GetAirportCodeResponse } from './AirportSelector'
+import AirlineSelector from './AirlineSelector'
 import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import { Moment } from 'moment'
+import axios from 'axios'
 
 interface CreateFlightModalProps {
   setOpen: (arg: boolean) => void
@@ -19,17 +18,12 @@ export default function CreateFlightModal(props: CreateFlightModalProps) {
   const { open, setOpen } = props
   const [origin, setOrigin] = useState("")
   const [dest, setDest] = useState("")
-  const [route, setRoute] = useState<RouteInfo>({})
+  const [route, setRoute] = useState<GetAirportCodeResponse>()
+  const [airlineCode, setAirlineCode] = useState("")
   const [datetime, setDatetime] = useState("")
-  const [airlineSelectEnabled, setAirlineSelectEnabled] = useState(false)
-
-  const getFlightsFrom = (opt?: SelectOptionType | null) => {
-    setOrigin(opt?.value || "")
-  }
-
-  const getFlightsTo = (opt?: SelectOptionType | null) => {
-    setDest(opt?.value || "")
-  }
+  const [flightNumber, setFlightNumber] = useState("")
+  const [durationMins, setDurationMins] = useState(0)
+  const [distanceMiles, setDistanceMiles] = useState(0)
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -73,10 +67,10 @@ export default function CreateFlightModal(props: CreateFlightModalProps) {
                             <div className="sm:col-span-3">
                               <label className="block text-sm font-medium leading-6 text-gray-900">Origin</label>
                               <div className="mt-2">
-                                { <AirportSelector isClearable={false} onChange={(s) => { 
-                                    setOrigin(s?.value || "")
-                                    if (dest !== "") {
-                                      setAirlineSelectEnabled(true)
+                                { <AirportSelector isOriginSearch={true} dest={dest} isClearable={false} onChange={(s) => { 
+                                    setOrigin(s?.value.airport_code || "")
+                                    if (dest) {
+                                      setRoute(s?.value)
                                     }
                                   }}/> }
                               </div>
@@ -85,10 +79,10 @@ export default function CreateFlightModal(props: CreateFlightModalProps) {
                             <div className="sm:col-span-3">
                               <label className="block text-sm font-medium leading-6 text-gray-900">Destination</label>
                               <div className="mt-2">
-                                { <AirportSelector isClearable={false} onChange={(s) => {
-                                    setDest(s?.value || "")
-                                    if (origin !== "") {
-                                      setAirlineSelectEnabled(true)
+                                { <AirportSelector isOriginSearch={false} origin={origin} isClearable={false} onChange={(s) => {
+                                    setDest(s?.value.airport_code || "")
+                                    if (origin) {
+                                      setRoute(s?.value)
                                     }
                                   }}/> }
                               </div>
@@ -97,13 +91,12 @@ export default function CreateFlightModal(props: CreateFlightModalProps) {
                             <div className="sm:col-span-6">
                               <label className="block text-sm font-medium leading-6 text-gray-900">Airline:</label>
                               <div className="mt-2">
-                                { <RouteAirlineSelector
-                                    isDisabled={!airlineSelectEnabled}
+                                { <AirlineSelector
                                     onChange={(s) => {
-                                      setRoute(s?.value || {}) 
+                                      setAirlineCode(s?.value || "") 
                                     }}
-                                    origin={origin}
-                                    dest={dest} /> }
+                                  />
+                                }
                               </div>
                             </div>
 
@@ -116,7 +109,49 @@ export default function CreateFlightModal(props: CreateFlightModalProps) {
                                   name="price"
                                   id="price"
                                   className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                  placeholder={route.airplane_model}
+                                  placeholder={route?.airplane_model}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="sm:col-span-6">
+                              <label className="block text-sm font-medium leading-6 text-gray-900">Flight Number:</label>
+                              <div className="mt-2">
+                                <input
+                                  onChange={(v) => { setFlightNumber(v.target.value) }}
+                                  type="text"
+                                  name="price"
+                                  id="price"
+                                  className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                  placeholder="#"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="sm:col-span-6">
+                              <label className="block text-sm font-medium leading-6 text-gray-900">Duration (Minutes):</label>
+                              <div className="mt-2">
+                                <input
+                                  onChange={(v) => { setDurationMins(Number(v.target.value)) }}
+                                  type="number"
+                                  name="price"
+                                  id="price"
+                                  className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                  placeholder=""
+                                />
+                              </div>
+                            </div>
+
+                            <div className="sm:col-span-6">
+                              <label className="block text-sm font-medium leading-6 text-gray-900">Distance (Miles):</label>
+                              <div className="mt-2">
+                                <input
+                                  onChange={(v) => { setDistanceMiles(Number(v.target.value)) }}
+                                  type="number"
+                                  name="price"
+                                  id="price"
+                                  className="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                  placeholder=""
                                 />
                               </div>
                             </div>
@@ -137,7 +172,29 @@ export default function CreateFlightModal(props: CreateFlightModalProps) {
                   <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                    onClick={() => setOpen(false)}
+                    onClick={() => { 
+                      axios.get(
+                        'https://localhost:8000/createflight',
+                        {
+                          params: {
+                            route_id: route?.route_id,
+                            flight_number: String(flightNumber),
+                            departure_time: String(datetime),
+                            airline_code: String(airlineCode),
+                            distance_miles: distanceMiles,
+                            duration_minutes: durationMins
+                          }
+                        }
+                      ).then(response => {
+                        if (response.status == 200 || response.status == 201) {
+                          console.log("Good!")
+                          alert("Flight Created")
+                        } else {
+                          console.log("TERRIBLE")
+                        }
+                        setOpen(false) 
+                      })
+                    }}
                   >
                     Create
                   </button>

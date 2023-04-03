@@ -74,7 +74,7 @@ export default function Flights() {
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
               <div className="sm:col-span-3">
-                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Origin</label>
+                <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">Origin</label>
                 <div className="mt-2">
                   <AsyncSelect isClearable cacheOptions defaultOptions
                     loadOptions={loadOptions}
@@ -84,7 +84,7 @@ export default function Flights() {
               </div>
 
               <div className="sm:col-span-3">
-                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">Destination</label>
+                <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">Destination</label>
                 <div className="mt-2">
                   <AsyncSelect isClearable cacheOptions defaultOptions
                     loadOptions={loadOptions} 
@@ -101,11 +101,11 @@ export default function Flights() {
               <div key={f.id} className="max-w-full rounded overflow-hidden shadow-lg bg-white">
                 <div className="px-6 py-4">
                   <div className="flex font-bold text-xl">{f.airline_name} #{f.flight_number}:
-                  <a href="/" className="ml-5 text-neutral-600">{f.origin_ap_code}</a>
+                  <Link href="/" className="ml-5 text-neutral-600">{f.origin_ap_code}</Link>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-5 h-5 mx-2 mt-1">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
-                  <a href="/" className="text-neutral-600">{f.dest_ap_code}</a>
+                  <Link href="/" className="text-neutral-600">{f.dest_ap_code}</Link>
                   </div>
                   <p className="text-gray-700 text-xl mb-2">
                     {f.departure_time}
